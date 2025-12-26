@@ -1,0 +1,319 @@
+/**
+ * Linear Calendar 2 - Styles
+ * Uses CSS custom properties for theme compatibility
+ */
+
+/* ==================== CSS Variables ==================== */
+.linear-calendar-2 {
+  --lc2-cell-min-width: 30px;
+  --lc2-bar-height: 14px;
+  --lc2-bar-gap: 2px;
+  --lc2-day-number-size: 0.7em;
+  --lc2-note-font-size: 0.65em;
+  --lc2-month-label-width: 35px;
+  --lc2-header-padding: 8px 15px;
+  --lc2-transition-speed: 0.2s;
+}
+
+/* ==================== Container ==================== */
+.lc2-container {
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-primary);
+}
+
+/* ==================== Header ==================== */
+.lc2-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: var(--lc2-header-padding);
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.lc2-year-title {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: center;
+}
+
+.lc2-nav-btn {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background var(--lc2-transition-speed);
+}
+
+.lc2-nav-btn:hover {
+  background: var(--interactive-accent-hover);
+}
+
+.lc2-nav-btn:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* ==================== Calendar Wrapper ==================== */
+.lc2-wrapper {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 15px;
+  padding-top: 20px;
+  margin-top: 0;
+}
+
+/* Scrollable mode */
+.lc2-wrapper--scrollable {
+  justify-content: flex-start;
+  overflow-x: auto;
+}
+
+/* ==================== Calendar Table ==================== */
+.lc2-calendar {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 100%;
+  height: fit-content;
+  font-size: clamp(0.5em, 1.2vw, 0.85em);
+  table-layout: fixed;
+}
+
+.lc2-wrapper--scrollable .lc2-calendar {
+  width: max-content;
+  min-width: 100%;
+}
+
+/* ==================== Header Row ==================== */
+.lc2-weekday-header {
+  padding: 3px 2px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.75em;
+  color: var(--text-muted);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  width: calc((100% - 70px) / 37);
+  min-width: 0;
+}
+
+.lc2-wrapper--scrollable .lc2-weekday-header {
+  width: var(--lc2-cell-min-width);
+  min-width: var(--lc2-cell-min-width);
+  max-width: var(--lc2-cell-min-width);
+}
+
+/* ==================== Month Labels ==================== */
+.lc2-month-label,
+.lc2-month-label-cell {
+  width: var(--lc2-month-label-width);
+  min-width: var(--lc2-month-label-width);
+  max-width: var(--lc2-month-label-width);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  font-weight: bold;
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 0.9em;
+  vertical-align: middle;
+}
+
+/* ==================== Month Row ==================== */
+.lc2-month-row {
+  height: clamp(50px, 8vh, 80px);
+}
+
+/* ==================== Day Cell ==================== */
+.lc2-day-cell {
+  border: 1px solid var(--background-modifier-border);
+  padding: 3px;
+  padding-top: 18px;
+  vertical-align: top;
+  width: calc((100% - 70px) / 37);
+  min-width: 0;
+  background: var(--background-primary);
+  position: relative;
+  overflow: visible;
+  word-wrap: break-word;
+  box-sizing: border-box;
+}
+
+.lc2-wrapper--scrollable .lc2-day-cell {
+  width: var(--lc2-cell-min-width);
+  min-width: var(--lc2-cell-min-width);
+  max-width: var(--lc2-cell-min-width);
+}
+
+.lc2-day-cell--empty {
+  background: var(--background-secondary);
+  opacity: 0.3;
+}
+
+.lc2-day-cell--today {
+  background: var(--interactive-accent);
+  border: 2px solid var(--interactive-accent-hover);
+}
+
+.lc2-day-cell--today .lc2-day-number {
+  color: var(--text-on-accent);
+  font-weight: bold;
+}
+
+/* ==================== Day Number ==================== */
+.lc2-day-number {
+  font-size: var(--lc2-day-number-size);
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 2px;
+  font-weight: 500;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--lc2-transition-speed);
+}
+
+.lc2-day-number:hover {
+  color: var(--interactive-accent);
+  text-decoration: underline;
+}
+
+.lc2-day-cell--today .lc2-day-number:hover {
+  color: var(--text-on-accent);
+}
+
+/* ==================== Notes Container ==================== */
+.lc2-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--lc2-note-font-size);
+  max-width: 100%;
+}
+
+/* ==================== Note Link ==================== */
+.lc2-note-link {
+  padding: 1px 3px;
+  background: var(--interactive-accent) !important;
+  color: var(--text-on-accent) !important;
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  transition: background var(--lc2-transition-speed);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.lc2-note-link:hover {
+  background: var(--interactive-accent-hover) !important;
+}
+
+.lc2-day-cell--today .lc2-note-link {
+  background: var(--text-on-accent) !important;
+  color: var(--interactive-accent) !important;
+}
+
+/* ==================== Multi-Day Bar ==================== */
+.lc2-multiday-bar {
+  position: absolute;
+  left: 3px;
+  height: var(--lc2-bar-height);
+  background: var(--interactive-accent) !important;
+  border-radius: 3px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  pointer-events: all;
+  transition: background var(--lc2-transition-speed);
+}
+
+.lc2-multiday-bar:hover {
+  background: var(--interactive-accent-hover) !important;
+}
+
+.lc2-multiday-link {
+  color: var(--text-on-accent) !important;
+  font-size: var(--lc2-note-font-size);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  display: block;
+}
+
+/* ==================== Tooltip ==================== */
+.lc2-tooltip {
+  position: fixed;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  z-index: 1000;
+  pointer-events: none;
+  white-space: nowrap;
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== Responsive ==================== */
+@media (max-height: 800px) {
+  .lc2-month-row {
+    height: clamp(40px, 7vh, 60px);
+  }
+
+  .lc2-multiday-bar {
+    height: 12px;
+  }
+}
+
+/* ==================== Print Styles ==================== */
+@media print {
+  .lc2-header {
+    border: none;
+  }
+
+  .lc2-nav-btn {
+    display: none;
+  }
+
+  .lc2-calendar {
+    font-size: 0.6em;
+  }
+}
+
+/* ==================== Accessibility ==================== */
+@media (prefers-reduced-motion: reduce) {
+  .lc2-nav-btn,
+  .lc2-day-number,
+  .lc2-note-link,
+  .lc2-multiday-bar {
+    transition: none;
+  }
+}

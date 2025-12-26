@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+main.js
+main.js.map
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# OS files
+Thumbs.db
+
+# Package lock (we use package-lock.json)
+yarn.lock
+pnpm-lock.yaml
+
+# Obsidian
+data.json

@@ -1,0 +1,48 @@
+{
+  "name": "linear-calendar-2",
+  "version": "1.0.0",
+  "description": "A professional linear calendar view for Obsidian",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf main.js main.js.map",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "calendar",
+    "linear-calendar",
+    "yearly-view"
+  ],
+  "author": "Jochen",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitest/coverage-v8": "^1.1.0",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.19.9",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "jsdom": "^23.0.1",
+    "obsidian": "latest",
+    "prettier": "^3.1.1",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

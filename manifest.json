@@ -1,0 +1,10 @@
+{
+  "id": "linear-calendar-2",
+  "name": "Linear Calendar 2",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "A professional linear calendar view that displays all 365 days with notes based on date properties",
+  "author": "Jochen",
+  "authorUrl": "https://github.com/YOUR_USERNAME",
+  "isDesktopOnly": false
+}
