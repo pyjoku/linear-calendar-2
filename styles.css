@@ -66,7 +66,152 @@
   outline-offset: 2px;
 }
 
-/* ==================== Calendar Wrapper ==================== */
+/* ==================== Navigation ==================== */
+.lc2-navigation {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lc2-year-display {
+  font-size: 1.2em;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: center;
+}
+
+.lc2-today-btn {
+  background: var(--interactive-normal);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: var(--text-muted);
+  transition: all var(--lc2-transition-speed);
+}
+
+.lc2-today-btn:hover {
+  background: var(--interactive-hover);
+  color: var(--text-normal);
+}
+
+/* ==================== Calendar Grid ==================== */
+.lc2-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow: auto;
+  padding: 15px;
+}
+
+/* ==================== Month ==================== */
+.lc2-month {
+  background: var(--background-secondary);
+  border-radius: 5px;
+  padding: 8px;
+}
+
+.lc2-month-header {
+  padding: 4px 8px;
+  margin-bottom: 6px;
+}
+
+.lc2-month-name {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--text-normal);
+}
+
+/* ==================== Days Grid ==================== */
+.lc2-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+/* ==================== Day Cell (new simplified version) ==================== */
+.lc2-day {
+  aspect-ratio: 1;
+  min-height: 28px;
+  padding: 3px;
+  border-radius: 3px;
+  background: var(--background-primary);
+  cursor: pointer;
+  transition: background var(--lc2-transition-speed);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.lc2-day:hover {
+  background: var(--background-modifier-hover);
+}
+
+.lc2-day:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+}
+
+.lc2-day--empty {
+  background: transparent;
+  cursor: default;
+}
+
+.lc2-day--empty:hover {
+  background: transparent;
+}
+
+.lc2-day--today {
+  background: var(--interactive-accent);
+}
+
+.lc2-day--today:hover {
+  background: var(--interactive-accent-hover);
+}
+
+.lc2-day--today .lc2-day-number {
+  color: var(--text-on-accent);
+  font-weight: bold;
+}
+
+.lc2-day--weekend {
+  background: var(--background-secondary-alt);
+}
+
+.lc2-day--weekend.lc2-day--today {
+  background: var(--interactive-accent);
+}
+
+.lc2-day--has-entries {
+  border-bottom: 2px solid var(--interactive-accent);
+}
+
+/* ==================== Entry Indicators ==================== */
+.lc2-entry-indicators {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.lc2-entry-indicator {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--interactive-accent);
+}
+
+.lc2-more-indicator {
+  font-size: 0.6em;
+  color: var(--text-muted);
+}
+
+/* ==================== Calendar Wrapper (legacy) ==================== */
 .lc2-wrapper {
   flex: 1;
   overflow: auto;

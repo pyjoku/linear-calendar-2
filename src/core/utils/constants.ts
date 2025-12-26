@@ -128,10 +128,18 @@ export const CSS_CLASSES = Object.freeze({
   headerTitle: `${CSS_PREFIX}-header-title`,
   headerMonth: `${CSS_PREFIX}-header-month`,
   headerYear: `${CSS_PREFIX}-header-year`,
-  navButton: `${CSS_PREFIX}-nav-button`,
+  navButton: `${CSS_PREFIX}-nav-btn`,
   navButtonPrev: `${CSS_PREFIX}-nav-button-prev`,
   navButtonNext: `${CSS_PREFIX}-nav-button-next`,
   navButtonToday: `${CSS_PREFIX}-nav-button-today`,
+  yearDisplay: `${CSS_PREFIX}-year-display`,
+  todayButton: `${CSS_PREFIX}-today-btn`,
+
+  // Month elements
+  month: `${CSS_PREFIX}-month`,
+  monthHeader: `${CSS_PREFIX}-month-header`,
+  monthName: `${CSS_PREFIX}-month-name`,
+  days: `${CSS_PREFIX}-days`,
 
   // Grid elements
   weekdayHeader: `${CSS_PREFIX}-weekday-header`,
@@ -141,13 +149,25 @@ export const CSS_CLASSES = Object.freeze({
   dayNumber: `${CSS_PREFIX}-day-number`,
   dayContent: `${CSS_PREFIX}-day-content`,
 
-  // Day cell states
+  // Day cell classes (simplified)
+  day: `${CSS_PREFIX}-day`,
+  emptyDay: `${CSS_PREFIX}-day--empty`,
+  today: `${CSS_PREFIX}-day--today`,
+  weekend: `${CSS_PREFIX}-day--weekend`,
+  hasEntries: `${CSS_PREFIX}-day--has-entries`,
+
+  // Day cell states (legacy)
   dayToday: `${CSS_PREFIX}-day-today`,
   daySelected: `${CSS_PREFIX}-day-selected`,
   dayHasEntries: `${CSS_PREFIX}-day-has-entries`,
   dayEmpty: `${CSS_PREFIX}-day-empty`,
   dayAdjacentMonth: `${CSS_PREFIX}-day-adjacent-month`,
   dayWeekend: `${CSS_PREFIX}-day-weekend`,
+
+  // Entry indicators
+  entryIndicators: `${CSS_PREFIX}-entry-indicators`,
+  entryIndicator: `${CSS_PREFIX}-entry-indicator`,
+  moreIndicator: `${CSS_PREFIX}-more-indicator`,
 
   // Entry elements
   entry: `${CSS_PREFIX}-entry`,

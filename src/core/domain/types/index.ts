@@ -7,8 +7,13 @@
  * @module types
  */
 
+import type { LocalDate as LocalDateType } from '../models/LocalDate';
+
 // Re-export LocalDate types and functions
 export type { LocalDate } from '../models/LocalDate';
+
+// Local alias for internal use
+type LocalDate = LocalDateType;
 export {
   createLocalDate,
   localDateToKey,
@@ -262,6 +267,63 @@ export function createPluginSettings(partial: Partial<PluginSettings>): PluginSe
     debugMode: partial.debugMode ?? DEFAULT_PLUGIN_SETTINGS.debugMode
   });
 }
+
+// ============================================================================
+// Simplified Settings Types (used by plugin)
+// ============================================================================
+
+/**
+ * Calendar width modes
+ */
+export type CalendarWidth = 'fit' | 'scroll';
+
+/**
+ * Date extraction priority
+ */
+export type DatePriority = 'property' | 'filename';
+
+/**
+ * Simplified settings interface used by the plugin
+ */
+export interface LinearCalendarSettings {
+  /** Calendar width mode */
+  calendarWidth: CalendarWidth;
+
+  /** Frontmatter properties to check for start dates */
+  dateProperties: string[];
+
+  /** Frontmatter properties to check for end dates */
+  endDateProperties: string[];
+
+  /** Priority when both filename and property have dates */
+  datePriority: DatePriority;
+
+  /** Folder for daily notes */
+  dailyNoteFolder: string;
+
+  /** Format for daily note filenames */
+  dailyNoteFormat: string;
+
+  /** Show multi-day event bars */
+  showMultiDayBars: boolean;
+
+  /** Highlight weekend days */
+  showWeekendHighlight: boolean;
+}
+
+/**
+ * Default settings
+ */
+export const DEFAULT_SETTINGS: LinearCalendarSettings = {
+  calendarWidth: 'fit',
+  dateProperties: ['date', 'startDate', 'created'],
+  endDateProperties: ['endDate', 'due', 'deadline'],
+  datePriority: 'property',
+  dailyNoteFolder: '',
+  dailyNoteFormat: 'YYYY-MM-DD',
+  showMultiDayBars: true,
+  showWeekendHighlight: true,
+};
 
 // ============================================================================
 // View State Types

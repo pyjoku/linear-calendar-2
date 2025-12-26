@@ -1,15 +1,22 @@
 /**
  * Linear Calendar 2 - Main Entry Point
  *
- * This file will be the plugin entry point once the presentation layer is complete.
- * For now, it exports the core modules for testing.
+ * A professional linear calendar view for Obsidian that displays
+ * all 365 days of the year with your notes.
  */
+
+// Re-export the main plugin
+export { LinearCalendarPlugin } from './plugin/LinearCalendarPlugin';
+export { LinearCalendarPlugin as default } from './plugin/LinearCalendarPlugin';
+
+// Export view types for external use
+export { CalendarView, VIEW_TYPE_LINEAR_CALENDAR } from './presentation/views/CalendarView';
 
 // Core Domain Models
 export {
   createLocalDate,
   localDateToKey,
-  localDateFromKey,
+  keyToLocalDate as localDateFromKey,
   compareLocalDates,
   getDaysInMonth,
   getWeekday,
@@ -22,7 +29,6 @@ export type { LocalDate } from './core/domain/models/LocalDate';
 
 export {
   createCalendarEntry,
-  isMultiDayEntry,
 } from './core/domain/models/CalendarEntry';
 
 export type {
@@ -50,6 +56,8 @@ export type {
   DatePriority,
 } from './core/domain/types';
 
+export { DEFAULT_SETTINGS } from './core/domain/types';
+
 // Constants
 export {
   MONTH_NAMES,
@@ -58,17 +66,3 @@ export {
   CSS_CLASSES,
   ARIA_LABELS,
 } from './core/utils/constants';
-
-// Placeholder Plugin class - will be implemented in presentation layer
-import { Plugin } from 'obsidian';
-
-export default class LinearCalendarPlugin extends Plugin {
-  async onload(): Promise<void> {
-    console.log('Linear Calendar 2 loading...');
-    // TODO: Implement plugin initialization
-  }
-
-  async onunload(): Promise<void> {
-    console.log('Linear Calendar 2 unloading...');
-  }
-}
