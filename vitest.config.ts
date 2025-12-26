@@ -19,6 +19,9 @@ export default defineConfig({
       },
     },
     setupFiles: ['./tests/setup.ts'],
+    deps: {
+      inline: ['obsidian'],
+    },
   },
   resolve: {
     alias: {
@@ -27,6 +30,8 @@ export default defineConfig({
       '@application': resolve(__dirname, './src/application'),
       '@presentation': resolve(__dirname, './src/presentation'),
       '@plugin': resolve(__dirname, './src/plugin'),
+      // Mock obsidian module for tests
+      obsidian: resolve(__dirname, './tests/mocks/obsidian-stub.ts'),
     },
   },
 });
