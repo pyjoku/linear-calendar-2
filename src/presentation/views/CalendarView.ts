@@ -1,29 +1,29 @@
 /**
- * CalendarView - Main Obsidian view for the linear calendar
+ * CalendarView - Linear Calendar View for Obsidian
  *
- * This view renders the calendar grid and handles user interactions.
+ * Displays all 365 days of the year in a linear table format:
+ * - 12 rows (one per month)
+ * - ~37 columns (days aligned by weekday)
+ * - Notes displayed as clickable links in cells
  */
 
 import { ItemView, WorkspaceLeaf, Menu, TFile } from 'obsidian';
 import type { CalendarService } from '../../application/services/CalendarService';
-import type { CalendarGrid, MonthData, DayData } from '../../core/engines/CalendarEngine';
 import type { CalendarEntry } from '../../core/domain/models/CalendarEntry';
-import { localDateToKey } from '../../core/domain/models/LocalDate';
-import { CSS_CLASSES, MONTH_NAMES, ARIA_LABELS } from '../../core/utils/constants';
+import type { LocalDate } from '../../core/domain/models/LocalDate';
+import { getToday, localDateToKey, createLocalDate, getWeekday, getDaysInMonth } from '../../core/domain/models/LocalDate';
 
 export const VIEW_TYPE_LINEAR_CALENDAR = 'linear-calendar-2';
 
-/**
- * Configuration passed to the view
- */
+const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MAX_DAY_CELLS = 37; // Max columns for days (6 padding + 31 days)
+
 export interface CalendarViewConfig {
   service: CalendarService;
   openFile: (path: string) => Promise<void>;
 }
 
-/**
- * Main calendar view that displays the linear calendar
- */
 export class CalendarView extends ItemView {
   private config: CalendarViewConfig | null = null;
   private containerEl_: HTMLElement | null = null;
@@ -44,9 +44,6 @@ export class CalendarView extends ItemView {
     return 'calendar';
   }
 
-  /**
-   * Initializes the view with configuration
-   */
   initialize(config: CalendarViewConfig): void {
     this.config = config;
     this.config.service.setEventListeners({
@@ -56,9 +53,8 @@ export class CalendarView extends ItemView {
   }
 
   async onOpen(): Promise<void> {
-    this.containerEl_ = this.contentEl.createDiv({
-      cls: CSS_CLASSES.container,
-    });
+    this.containerEl_ = this.contentEl;
+    this.containerEl_.addClass('linear-calendar-2');
     this.render();
   }
 
@@ -67,9 +63,6 @@ export class CalendarView extends ItemView {
     this.containerEl_ = null;
   }
 
-  /**
-   * Renders the calendar view
-   */
   render(): void {
     if (!this.containerEl_ || !this.config) return;
 
@@ -77,45 +70,45 @@ export class CalendarView extends ItemView {
 
     const service = this.config.service;
     const year = service.getCurrentYear();
-    const grid = service.generateCalendarGrid();
 
-    // Render header
-    this.renderHeader(year);
+    // Create container
+    const container = this.containerEl_.createDiv({ cls: 'lc2-container' });
 
-    // Render calendar grid
-    this.renderCalendarGrid(grid);
+    // Header with navigation
+    this.renderHeader(container, year);
+
+    // Calendar wrapper (scrollable)
+    const wrapper = container.createDiv({ cls: 'lc2-wrapper' });
+
+    // Calendar table
+    this.renderCalendarTable(wrapper, year);
   }
 
-  /**
-   * Renders the header with navigation
-   */
-  private renderHeader(year: number): void {
-    if (!this.containerEl_ || !this.config) return;
+  private renderHeader(container: HTMLElement, year: number): void {
+    if (!this.config) return;
 
-    const header = this.containerEl_.createDiv({
-      cls: CSS_CLASSES.header,
-    });
+    const header = container.createDiv({ cls: 'lc2-header' });
 
-    // Navigation buttons
-    const nav = header.createDiv({ cls: CSS_CLASSES.navigation });
-
-    const prevBtn = nav.createEl('button', {
-      text: '<',
-      cls: CSS_CLASSES.navButton,
+    // Previous year button
+    const prevBtn = header.createEl('button', {
+      text: '←',
+      cls: 'lc2-nav-btn',
       attr: { 'aria-label': 'Previous year' },
     });
     prevBtn.addEventListener('click', () => {
       this.config?.service.previousYear();
     });
 
-    const yearDisplay = nav.createEl('span', {
+    // Year display
+    header.createEl('span', {
       text: String(year),
-      cls: CSS_CLASSES.yearDisplay,
+      cls: 'lc2-year-title',
     });
 
-    const nextBtn = nav.createEl('button', {
-      text: '>',
-      cls: CSS_CLASSES.navButton,
+    // Next year button
+    const nextBtn = header.createEl('button', {
+      text: '→',
+      cls: 'lc2-nav-btn',
       attr: { 'aria-label': 'Next year' },
     });
     nextBtn.addEventListener('click', () => {
@@ -125,7 +118,7 @@ export class CalendarView extends ItemView {
     // Today button
     const todayBtn = header.createEl('button', {
       text: 'Today',
-      cls: CSS_CLASSES.todayButton,
+      cls: 'lc2-nav-btn lc2-today-btn',
       attr: { 'aria-label': 'Go to today' },
     });
     todayBtn.addEventListener('click', () => {
@@ -133,219 +126,189 @@ export class CalendarView extends ItemView {
     });
   }
 
-  /**
-   * Renders the calendar grid
-   */
-  private renderCalendarGrid(grid: CalendarGrid): void {
-    if (!this.containerEl_ || !this.config) return;
-
-    const gridEl = this.containerEl_.createDiv({
-      cls: CSS_CLASSES.grid,
-    });
-
-    for (const month of grid.months) {
-      this.renderMonth(gridEl, month);
-    }
-  }
-
-  /**
-   * Renders a single month
-   */
-  private renderMonth(container: HTMLElement, month: MonthData): void {
-    const monthEl = container.createDiv({
-      cls: CSS_CLASSES.month,
-    });
-
-    // Month header
-    const headerEl = monthEl.createDiv({
-      cls: CSS_CLASSES.monthHeader,
-    });
-    headerEl.createEl('span', {
-      text: month.name,
-      cls: CSS_CLASSES.monthName,
-    });
-
-    // Days grid
-    const daysEl = monthEl.createDiv({
-      cls: CSS_CLASSES.days,
-    });
-
-    for (const day of month.days) {
-      this.renderDay(daysEl, day);
-    }
-  }
-
-  /**
-   * Renders a single day cell
-   */
-  private renderDay(container: HTMLElement, day: DayData): void {
+  private renderCalendarTable(wrapper: HTMLElement, year: number): void {
     if (!this.config) return;
 
-    const dayEl = container.createDiv({
-      cls: this.getDayClasses(day),
-    });
+    const table = wrapper.createEl('table', { cls: 'lc2-calendar' });
 
-    if (day.isEmpty) {
-      // Empty padding cell
-      return;
-    }
+    // Header row with weekday labels
+    const thead = table.createEl('thead');
+    const headerRow = thead.createEl('tr');
 
-    // Day number
-    const dayNumber = dayEl.createEl('span', {
-      text: String(day.date.day),
-      cls: CSS_CLASSES.dayNumber,
-    });
+    // Empty cell for month label column
+    headerRow.createEl('th', { cls: 'lc2-month-label-cell' });
 
-    // Get entries for this day
-    const entries = this.config.service.getEntriesForDate(day.date);
-
-    // Add entry indicators
-    if (entries.length > 0) {
-      dayEl.addClass(CSS_CLASSES.hasEntries);
-
-      const indicatorContainer = dayEl.createDiv({
-        cls: CSS_CLASSES.entryIndicators,
+    // Weekday headers (repeated across 37 columns)
+    for (let i = 0; i < MAX_DAY_CELLS; i++) {
+      headerRow.createEl('th', {
+        text: WEEKDAYS[i % 7],
+        cls: 'lc2-weekday-header',
       });
-
-      // Show up to 3 indicators
-      const maxIndicators = 3;
-      for (let i = 0; i < Math.min(entries.length, maxIndicators); i++) {
-        indicatorContainer.createDiv({
-          cls: CSS_CLASSES.entryIndicator,
-        });
-      }
-
-      // Show +N if more than 3
-      if (entries.length > maxIndicators) {
-        indicatorContainer.createEl('span', {
-          text: `+${entries.length - maxIndicators}`,
-          cls: CSS_CLASSES.moreIndicator,
-        });
-      }
     }
 
-    // Click handler to open daily note
-    dayEl.addEventListener('click', (event) => {
-      if (event.button === 0) {
-        this.handleDayClick(day);
-      }
-    });
+    // Optional: right month label column
+    headerRow.createEl('th', { cls: 'lc2-month-label-cell' });
 
-    // Right-click handler for context menu
-    dayEl.addEventListener('contextmenu', (event) => {
-      event.preventDefault();
-      this.showDayContextMenu(event, day, entries);
-    });
+    // Body with month rows
+    const tbody = table.createEl('tbody');
 
-    // Keyboard accessibility
-    dayEl.setAttribute('tabindex', '0');
-    dayEl.setAttribute('role', 'button');
-    dayEl.setAttribute('aria-label', this.getDayAriaLabel(day, entries.length));
-    dayEl.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        this.handleDayClick(day);
-      }
-    });
+    for (let month = 1; month <= 12; month++) {
+      this.renderMonthRow(tbody, year, month);
+    }
+
+    // Footer row with weekday labels
+    const tfoot = table.createEl('tfoot');
+    const footerRow = tfoot.createEl('tr');
+    footerRow.createEl('td', { cls: 'lc2-month-label-cell' });
+    for (let i = 0; i < MAX_DAY_CELLS; i++) {
+      footerRow.createEl('td', {
+        text: WEEKDAYS[i % 7],
+        cls: 'lc2-weekday-header',
+      });
+    }
+    footerRow.createEl('td', { cls: 'lc2-month-label-cell' });
   }
 
-  /**
-   * Gets CSS classes for a day cell
-   */
-  private getDayClasses(day: DayData): string {
-    const classes: string[] = [CSS_CLASSES.day];
-
-    if (day.isEmpty) {
-      classes.push(CSS_CLASSES.emptyDay);
-    }
-
-    if (day.isToday) {
-      classes.push(CSS_CLASSES.today);
-    }
-
-    // Add weekend class
-    if (!day.isEmpty) {
-      const dayOfWeek = new Date(
-        day.date.year,
-        day.date.month - 1,
-        day.date.day
-      ).getDay();
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
-        classes.push(CSS_CLASSES.weekend);
-      }
-    }
-
-    return classes.join(' ');
-  }
-
-  /**
-   * Gets the aria-label for a day cell
-   */
-  private getDayAriaLabel(day: DayData, entryCount: number): string {
-    const dateStr = `${MONTH_NAMES[day.date.month - 1]} ${day.date.day}, ${day.date.year}`;
-
-    if (day.isToday) {
-      if (entryCount > 0) {
-        return `Today, ${dateStr}, ${entryCount} note${entryCount === 1 ? '' : 's'}`;
-      }
-      return `Today, ${dateStr}`;
-    }
-
-    if (entryCount > 0) {
-      return `${dateStr}, ${entryCount} note${entryCount === 1 ? '' : 's'}`;
-    }
-
-    return dateStr;
-  }
-
-  /**
-   * Handles click on a day cell
-   */
-  private async handleDayClick(day: DayData): Promise<void> {
+  private renderMonthRow(tbody: HTMLElement, year: number, month: number): void {
     if (!this.config) return;
 
-    // Open or create daily note
-    await this.config.service.openDailyNote(day.date);
+    const row = tbody.createEl('tr', { cls: 'lc2-month-row' });
+
+    // Month label (left)
+    row.createEl('td', {
+      text: MONTH_NAMES[month - 1],
+      cls: 'lc2-month-label',
+    });
+
+    // Calculate first day of week and days in month
+    const firstDayOfMonth = createLocalDate(year, month, 1);
+    const startingDayOfWeek = getWeekday(firstDayOfMonth); // 0=Sunday
+    const daysInMonth = getDaysInMonth(year, month);
+
+    // Get today for highlighting
+    const today = getToday();
+    const isCurrentMonth = today.year === year && today.month === month;
+
+    // Empty padding cells
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      row.createEl('td', { cls: 'lc2-day-cell lc2-day-cell--empty' });
+    }
+
+    // Day cells
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = createLocalDate(year, month, day);
+      const isToday = isCurrentMonth && today.day === day;
+
+      this.renderDayCell(row, date, isToday);
+    }
+
+    // Fill remaining cells to reach MAX_DAY_CELLS
+    const totalCells = startingDayOfWeek + daysInMonth;
+    for (let i = totalCells; i < MAX_DAY_CELLS; i++) {
+      row.createEl('td', { cls: 'lc2-day-cell lc2-day-cell--empty' });
+    }
+
+    // Month label (right)
+    row.createEl('td', {
+      text: MONTH_NAMES[month - 1],
+      cls: 'lc2-month-label',
+    });
   }
 
-  /**
-   * Shows the context menu for a day cell
-   */
-  private showDayContextMenu(
-    event: MouseEvent,
-    day: DayData,
-    entries: readonly CalendarEntry[]
-  ): void {
+  private renderDayCell(row: HTMLElement, date: LocalDate, isToday: boolean): void {
+    if (!this.config) return;
+
+    const cellClasses = ['lc2-day-cell'];
+    if (isToday) {
+      cellClasses.push('lc2-day-cell--today');
+    }
+
+    const cell = row.createEl('td', { cls: cellClasses.join(' ') });
+
+    // Day number as clickable link
+    const dayNumber = cell.createEl('a', {
+      text: String(date.day).padStart(2, '0'),
+      cls: 'lc2-day-number',
+      href: '#',
+    });
+
+    dayNumber.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await this.config?.service.openDailyNote(date);
+    });
+
+    // Get entries for this date
+    const entries = this.config.service.getEntriesForDate(date);
+
+    if (entries.length > 0) {
+      const notesContainer = cell.createDiv({ cls: 'lc2-day-notes' });
+
+      // Show each entry as a link
+      for (const entry of entries) {
+        this.renderNoteLink(notesContainer, entry);
+      }
+    }
+  }
+
+  private renderNoteLink(container: HTMLElement, entry: CalendarEntry): void {
+    if (!this.config) return;
+
+    const noteLink = container.createEl('a', {
+      text: entry.displayName,
+      cls: 'lc2-note-link internal-link',
+      href: '#',
+    });
+
+    noteLink.setAttribute('data-href', entry.filePath);
+
+    // Click to open file
+    noteLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.config?.openFile(entry.filePath);
+    });
+
+    // Right-click context menu
+    noteLink.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      this.showNoteContextMenu(e, entry);
+    });
+
+    // Hover preview (Obsidian style)
+    noteLink.addEventListener('mouseover', (event) => {
+      this.app.workspace.trigger('hover-link', {
+        event,
+        source: VIEW_TYPE_LINEAR_CALENDAR,
+        hoverParent: this,
+        targetEl: noteLink,
+        linktext: entry.filePath,
+      });
+    });
+  }
+
+  private showNoteContextMenu(event: MouseEvent, entry: CalendarEntry): void {
     if (!this.config) return;
 
     const menu = new Menu();
 
-    // Option to create/open daily note
     menu.addItem((item) => {
       item
-        .setTitle('Open Daily Note')
-        .setIcon('file-text')
+        .setTitle('Open note')
+        .setIcon('file')
         .onClick(() => {
-          this.config?.service.openDailyNote(day.date);
+          this.config?.openFile(entry.filePath);
         });
     });
 
-    // If there are entries, show them
-    if (entries.length > 0) {
-      menu.addSeparator();
-
-      for (const entry of entries) {
-        menu.addItem((item) => {
-          const basename = entry.filePath.split('/').pop()?.replace('.md', '') ?? entry.filePath;
-          item
-            .setTitle(basename)
-            .setIcon('file')
-            .onClick(() => {
-              this.config?.openFile(entry.filePath);
-            });
+    menu.addItem((item) => {
+      item
+        .setTitle('Open in new tab')
+        .setIcon('file-plus')
+        .onClick(() => {
+          this.app.workspace.getLeaf('tab').openFile(
+            this.app.vault.getAbstractFileByPath(entry.filePath) as TFile
+          );
         });
-      }
-    }
+    });
 
     menu.showAtMouseEvent(event);
   }
